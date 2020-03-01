@@ -1,4 +1,4 @@
-package be.kevinbaes.encoded_string_mapper.sample;
+package be.kevinbaes.fixed_width_mapper.sample;
 
 public class Application {
 

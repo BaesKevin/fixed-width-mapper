@@ -10,6 +10,12 @@ public class Invoice {
   @StringEncodedValue
   private String name;
 
+  @StringEncodedValue
+  private String from;
+
+  @StringEncodedValue
+  private String to;
+
   public String getName() {
     return name;
   }

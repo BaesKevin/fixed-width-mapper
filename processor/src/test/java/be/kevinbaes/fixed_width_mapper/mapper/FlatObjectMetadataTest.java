@@ -1,22 +1,25 @@
 package be.kevinbaes.fixed_width_mapper.mapper;
 
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.FieldMetadata;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.FlatObjectMetadata;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.StringFieldMetadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class FlatFixedWidthObjectMetadataTest {
+class FlatObjectMetadataTest {
 
-    private FlatFixedWidthObjectMetadata twoStringFields;
-    private FixedWidthFieldMetadata field1;
-    private FixedWidthFieldMetadata field2;
+    private FlatObjectMetadata twoStringFields;
+    private FieldMetadata field1;
+    private FieldMetadata field2;
 
     @BeforeEach
     void setUp() {
-        field1 = new FixedWidthStringFieldMetadata("field1",5);
-        field2 = new FixedWidthStringFieldMetadata("field2",10);
+        field1 = new StringFieldMetadata("field1",5);
+        field2 = new StringFieldMetadata("field2",10);
 
-        twoStringFields = FlatFixedWidthObjectMetadata.builder()
+        twoStringFields = FlatObjectMetadata.builder()
                 .add(field1)
                 .add(field2)
                 .build();

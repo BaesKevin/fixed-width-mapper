@@ -1,5 +1,8 @@
 package be.kevinbaes.fixed_width_mapper.mapper;
 
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.FieldMetadata;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.FlatObjectMetadata;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -7,28 +10,28 @@ import java.util.Optional;
 import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
-public class DefaultFixedWidthFieldParser implements FixedWidthFieldParser {
+public class DefaultParser implements Parser {
 
-    private Map<Class<?>, Mapper<?>> mappers;
+    private Map<Class<?>, FieldMapper<?>> mappers;
 
-    public DefaultFixedWidthFieldParser() {
+    public DefaultParser() {
         this.mappers = new HashMap<>();
     }
 
+    public static DefaultParser withDefaultMappers() {
+        DefaultParser parser = new DefaultParser();
+        parser.registerMapper(Integer.class, new IntMapper());
+        parser.registerMapper(String.class, string -> string);
+        return parser;
+    }
+
     @Override
-    public void registerMapper(Class<?> type, Mapper<?> mapper) {
+    public void registerMapper(Class<?> type, FieldMapper<?> mapper) {
         if (!isNull(mappers.get(type))) {
             throw new IllegalArgumentException(format("type [%s] already registered", type.getName()));
         }
 
         mappers.put(type, mapper);
-    }
-
-    public static DefaultFixedWidthFieldParser withDefaultMappers() {
-        DefaultFixedWidthFieldParser parser = new DefaultFixedWidthFieldParser();
-        parser.registerMapper(Integer.class, new IntMapper());
-        parser.registerMapper(String.class, string -> string);
-        return parser;
     }
 
     @Override
@@ -39,23 +42,19 @@ public class DefaultFixedWidthFieldParser implements FixedWidthFieldParser {
     }
 
     @Override
-    public <T> T parseSingleField(String encoded, FixedWidthFieldMetadata<T> field) {
+    public <T> T parseSingleField(String encoded, FieldMetadata<T> field) {
         return parseValue(encoded, field.getTargetType());
     }
 
     @Override
-    public <T> T parseFieldFromObject(String partOfEncodedString, FixedWidthFieldMetadata<T> field, FlatFixedWidthObjectMetadata metadata) {
+    public <T> T parseFieldFromObject(String partOfEncodedString, FieldMetadata<T> field, FlatObjectMetadata metadata) {
         int nameStart = metadata.getStartingPosition(field);
         int nameEnd = nameStart + field.getWidth();
         String partAsString = partOfEncodedString.substring(nameStart, nameEnd);
         return parseValue(partAsString, field.getTargetType());
     }
 
-    interface Mapper<T> {
-        T map(String value);
-    }
-
-    static class IntMapper implements Mapper<Integer> {
+    static class IntMapper implements FieldMapper<Integer> {
         @Override
         public Integer map(String value) {
             return Integer.parseInt(value.trim());

@@ -1,5 +1,6 @@
 package be.kevinbaes.fixed_width_mapper.testmodel;
 
+import be.kevinbaes.fixed_width_mapper.mapper.ProductMapper;
 import org.junit.jupiter.api.Test;
 
 import static java.lang.String.format;
@@ -9,7 +10,7 @@ class ProductTest {
 
     @Test
     public void parseString_returnsProduct() {
-        Product product = new Product().fromFixedWidthString(format("%10s%20s%3s", "foo", "bar", "3"));
+        Product product = new ProductMapper().fromString(format("%10s%20s%3s", "foo", "bar", "3"));
 
         assertThat(product.getName()).isEqualTo("foo");
         assertThat(product.getDescription()).isEqualTo("bar");

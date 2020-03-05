@@ -1,10 +1,10 @@
-package be.kevinbaes.fixed_width_mapper.mapper;
+package be.kevinbaes.fixed_width_mapper.mapper.metadata;
 
-public class FixedWidthIntegerFieldMetadata implements FixedWidthFieldMetadata<Integer> {
+public class IntegerFieldMetadata implements FieldMetadata<Integer> {
     private String name;
     private int width;
 
-    public FixedWidthIntegerFieldMetadata(String name, int width) {
+    public IntegerFieldMetadata(String name, int width) {
         this.name = name;
         this.width = width;
     }

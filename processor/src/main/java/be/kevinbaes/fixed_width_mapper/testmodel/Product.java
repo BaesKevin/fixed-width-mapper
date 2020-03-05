@@ -8,11 +8,13 @@ public class Product {
     private String name;
     private String description;
     private int amountInStock;
+    private PriceInfo priceInfo;
 
-    public Product(String name, String description, int amountInStock) {
+    public Product(String name, String description, int amountInStock, PriceInfo priceInfo) {
         this.name = name;
         this.description = description;
         this.amountInStock = amountInStock;
+        this.priceInfo = priceInfo;
     }
 
     public String getName() {
@@ -24,5 +26,5 @@ public class Product {
     public int getAmountInStock() {
         return amountInStock;
     }
-
+    public PriceInfo getPriceInfo() { return priceInfo; }
 }

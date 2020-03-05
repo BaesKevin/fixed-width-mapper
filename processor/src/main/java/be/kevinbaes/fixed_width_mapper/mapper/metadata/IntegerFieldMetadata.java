@@ -23,4 +23,5 @@ public class IntegerFieldMetadata implements FieldMetadata<Integer> {
     public Class<Integer> getTargetType() {
         return Integer.class;
     }
+
 }

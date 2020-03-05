@@ -1,7 +1,7 @@
 package be.kevinbaes.fixed_width_mapper.mapper;
 
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.FieldMetadata;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.FlatObjectMetadata;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.ObjectMetadata;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +47,7 @@ public class DefaultParser implements Parser {
     }
 
     @Override
-    public <T> T parseFieldFromObject(String partOfEncodedString, FieldMetadata<T> field, FlatObjectMetadata metadata) {
+    public <T> T parseFieldFromObject(String partOfEncodedString, FieldMetadata<T> field, ObjectMetadata metadata) {
         int nameStart = metadata.getStartingPosition(field);
         int nameEnd = nameStart + field.getWidth();
         String partAsString = partOfEncodedString.substring(nameStart, nameEnd);

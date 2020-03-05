@@ -1,5 +1,6 @@
 package be.kevinbaes.fixed_width_mapper.mapper;
 
+import be.kevinbaes.fixed_width_mapper.testmodel.PriceInfo;
 import be.kevinbaes.fixed_width_mapper.testmodel.Product;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +21,9 @@ class ProductMapperTest {
         String name = "name";
         String description = "01234567890123456789";
         int stock = 3;
-        String encoded = String.format("%10s%20s%3s", name, description, stock);
+        int basePrice = 10;
+        int discountPrice = 8;
+        String encoded = String.format("%10s%20s%3s%5s%5s", name, description, stock, basePrice, discountPrice);
 
         ProductMapper mapper = new ProductMapper();
         Product product = mapper.fromString(encoded);
@@ -36,11 +39,11 @@ class ProductMapperTest {
         String description = "01234567890123456789";
         int stock = 3;
 
-        Product product = new Product(name, description, stock);
+        Product product = new Product(name, description, stock, new PriceInfo(10, 8));
 
         ObjectMapper<Product> productMapper = new ProductMapper();
 
-        String expectedEncoded = String.format("%10s%20s%3s", name, description, stock);
+        String expectedEncoded = String.format("%10s%20s%3s%5s%5s", name, description, stock, 10, 8);
         assertThat(productMapper.toString(product)).isEqualTo(expectedEncoded);
     }
 

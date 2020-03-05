@@ -6,4 +6,8 @@ public interface FieldMetadata<T> {
     int getWidth();
 
     Class<T> getTargetType();
+
+    default boolean isEqualTo(FieldMetadata<?> otherField) {
+        return getName().equals(otherField.getName());
+    }
 }

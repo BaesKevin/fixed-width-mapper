@@ -1,7 +1,7 @@
 package be.kevinbaes.fixed_width_mapper.mapper;
 
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.FieldMetadata;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.FlatObjectMetadata;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.ObjectMetadata;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.IntegerFieldMetadata;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.StringFieldMetadata;
 import org.junit.jupiter.api.Test;
@@ -59,9 +59,9 @@ public class DefaultParserTest {
         FieldMetadata<Integer> integerField = new IntegerFieldMetadata("foo", 4);
         FieldMetadata<String> stringField = new StringFieldMetadata("bar", 20);
 
-        FlatObjectMetadata metadata = FlatObjectMetadata.builder()
-                .add(integerField)
-                .add(stringField)
+        ObjectMetadata metadata = ObjectMetadata.builder()
+                .addField(integerField)
+                .addField(stringField)
                 .build();
 
         String partOfEncodedString = String.format("%4s%20s", 23, "description");

@@ -10,7 +10,7 @@ class ProductTest {
 
     @Test
     public void parseString_returnsProduct() {
-        Product product = new ProductMapper().fromString(format("%10s%20s%3s", "foo", "bar", "3"));
+        Product product = new ProductMapper().fromString(format("%10s%20s%3s%5s%5s", "foo", "bar", "3", 5, 3));
 
         assertThat(product.getName()).isEqualTo("foo");
         assertThat(product.getDescription()).isEqualTo("bar");

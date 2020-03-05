@@ -1,24 +1,21 @@
 package be.kevinbaes.fixed_width_mapper.mapper;
 
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.FieldMetadata;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.ObjectMetadata;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.IntegerFieldMetadata;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.ObjectMetadata;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.StringFieldMetadata;
 import be.kevinbaes.fixed_width_mapper.testmodel.PriceInfo;
 import be.kevinbaes.fixed_width_mapper.testmodel.Product;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class ProductMapper implements ObjectMapper<Product> {
 
-    public static final IntegerFieldMetadata DISCOUNT_PRICE = new IntegerFieldMetadata("discount price", 5);
-    public static final IntegerFieldMetadata BASE_PRICE = new IntegerFieldMetadata("base price", 5);
+    public static final FieldMetadata<Integer> DISCOUNT_PRICE = new IntegerFieldMetadata("discount price", 5);
+    public static final FieldMetadata<Integer> BASE_PRICE = new IntegerFieldMetadata("base price", 5);
     private final FieldMetadata<String> NAME_FIELD = new StringFieldMetadata("name", 10);
     private final FieldMetadata<String> DESCRIPTION_FIELD = new StringFieldMetadata("description",20);
     private final FieldMetadata<Integer> STOCK_FIELD = new IntegerFieldMetadata("amount in stock",3);
-
 
     private final ObjectMetadata PRICE_INFO_METADATA = ObjectMetadata.builder()
             .addField(BASE_PRICE)
@@ -32,19 +29,23 @@ public class ProductMapper implements ObjectMapper<Product> {
             .addObject(PRICE_INFO_METADATA)
             .build();
 
-    private Parser parser;
+    private DefaultParser parser;
 
     public ProductMapper() {
-        parser = DefaultParser.withDefaultMappers();
+        parser = DefaultParser.builder()
+                .withDefaultMappers()
+                .withObjectMetadata(PRODUCT_METADATA)
+                .build();
     }
 
     @Override
     public Product fromString(String string) {
-        String name = parser.parseFieldFromObject(string, NAME_FIELD, PRODUCT_METADATA);
-        String description = parser.parseFieldFromObject(string, DESCRIPTION_FIELD, PRODUCT_METADATA);
-        int amountInStock = parser.parseFieldFromObject(string, STOCK_FIELD, PRODUCT_METADATA);
-        int basePrice = parser.parseFieldFromObject(string, BASE_PRICE, PRODUCT_METADATA);
-        int discountPrice = parser.parseFieldFromObject(string, DISCOUNT_PRICE, PRODUCT_METADATA);
+        parser = parser.toBuilder().withEncodedString(string).build();
+        String name = parser.parseFieldFromObject(NAME_FIELD);
+        int amountInStock = parser.parseFieldFromObject(STOCK_FIELD);
+        String description = parser.parseFieldFromObject(DESCRIPTION_FIELD);
+        int basePrice = parser.parseFieldFromObject(BASE_PRICE);
+        int discountPrice = parser.parseFieldFromObject(DISCOUNT_PRICE);
 
         return new Product(name.trim(), description.trim(), amountInStock, new PriceInfo(basePrice, discountPrice));
     }
@@ -61,16 +62,8 @@ public class ProductMapper implements ObjectMapper<Product> {
     }
 
     private String getFormatString() {
-        List<Integer> widths = new ArrayList<>();
-
-        widths.add(NAME_FIELD.getWidth());
-        widths.add(DESCRIPTION_FIELD.getWidth());
-        widths.add(STOCK_FIELD.getWidth());
-        widths.add(BASE_PRICE.getWidth());
-        widths.add(DISCOUNT_PRICE.getWidth());
-
-        return widths.stream()
-                .map(width -> String.format("%%%ds", width))
+        return PRODUCT_METADATA.fields().stream()
+                .map(field -> String.format("%%%ds", field.getWidth()))
                 .collect(Collectors.joining());
     }
 

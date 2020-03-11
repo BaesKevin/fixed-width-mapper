@@ -20,12 +20,12 @@ public class IntegerField implements Field<Integer> {
     }
 
     @Override
-    public Class<Integer> getTargetType() {
-        return Integer.class;
+    public Integer parse(String text) {
+        return Integer.parseInt(text.trim());
     }
 
     @Override
-    public Integer parse(String text) {
-        return Integer.parseInt(text.trim());
+    public String toString(Integer number) {
+        return "" + number;
     }
 }

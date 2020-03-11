@@ -15,13 +15,14 @@ public class StringField implements Field<String> {
     public int getWidth() {
         return width;
     }
-    @Override
-    public Class<String> getTargetType() {
-        return String.class;
-    }
 
     @Override
     public String parse(String text) {
         return text;
+    }
+
+    @Override
+    public String toString(String field) {
+        return field;
     }
 }

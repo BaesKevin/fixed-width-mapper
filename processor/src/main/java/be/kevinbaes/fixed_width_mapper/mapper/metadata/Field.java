@@ -5,7 +5,9 @@ public interface Field<T> {
 
     int getWidth();
 
-    Class<T> getTargetType();
+    T parse(String text);
+
+    String toString(T field);
 
     default boolean isEqualTo(Field<?> otherField) {
         return hasName(otherField.getName());
@@ -14,6 +16,4 @@ public interface Field<T> {
     default boolean hasName(String name) {
         return getName().equals(name);
     }
-
-    T parse(String text);
 }

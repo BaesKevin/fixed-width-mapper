@@ -68,11 +68,6 @@ public class Fields {
             return this;
         }
 
-        public FieldsBuilder addObject(Fields nestedObjectMetadata) {
-            nestedObjectMetadata.fields().forEach(this::addField);
-            return this;
-        }
-
         public Fields build() {
             return new Fields(fields);
         }

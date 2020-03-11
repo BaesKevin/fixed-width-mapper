@@ -41,25 +41,6 @@ class FieldsTest {
     }
 
     @Test
-    public void addObjectAddsAllnestedFields() {
-        Field<String> stringField = new StringField("field1", 7);
-        Field<String> nestedField = new StringField("field2", 4);
-        Fields nestedFields = Fields.builder()
-                .addField(nestedField)
-                .build();
-
-        Field<Fields> nestedFieldMetadata = new ObjectField("nested", nestedFields);
-
-        Fields parent = Fields.builder()
-                .addField(stringField)
-                .addField(nestedFieldMetadata)
-                .build();
-
-        assertThat(parent.getStartingPosition(stringField)).isEqualTo(0);
-        assertThat(parent.getStartingPosition(nestedField)).isEqualTo(7);
-    }
-
-    @Test
     public void getStartingPositionWorksForNestedFields() {
         Field<String> stringField = new StringField("field1",7);
         Field<String> nestedField = new StringField("field2", 4);
@@ -69,7 +50,6 @@ class FieldsTest {
 
         Fields parent = Fields.builder()
                 .addField(stringField)
-                .addObject(nestedObjectMetadata)
                 .build();
 
         assertThat(parent.getStartingPosition(stringField)).isEqualTo(0);
@@ -89,6 +69,11 @@ class FieldsTest {
         String encoded = format("%5s, %10s", "text1", "text2");
 
         assertThat(twoStringFields.getFieldAsText(encoded, "field1")).isEqualTo("text1");
+    }
+
+    @Test
+    public void getObjectFieldAsText() {
+
     }
 
 }

@@ -22,8 +22,8 @@ public class Fields {
 
     public String getFieldAsText(String encoded, String fieldName) {
         Field<?> field = getField(fieldName);
-        int fieldStart = getStartingPosition(field);
-        int fieldEnd = fieldStart + field.getWidth();
+        int fieldStart = getStartingPosition(field, encoded);
+        int fieldEnd = fieldStart + field.getWidth(encoded);
 
         return encoded.substring(fieldStart, fieldEnd);
     }
@@ -35,14 +35,14 @@ public class Fields {
                 .orElseThrow();
     }
 
-    int getStartingPosition(Field<?> fieldToRead) {
+    int getStartingPosition(Field<?> fieldToRead, String text) {
         int startingPosition = 0;
 
         for (Field<?> field : fields) {
             if (field.isEqualTo(fieldToRead)) {
                 break;
             }
-            startingPosition += field.getWidth();
+            startingPosition += field.getWidth(text);
         }
 
         return startingPosition;

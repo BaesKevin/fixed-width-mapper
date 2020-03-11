@@ -15,7 +15,12 @@ public class IntegerField implements Field<Integer> {
     }
 
     @Override
-    public int getWidth() {
+    public Field<Integer> setName(String name) {
+        return new IntegerField(name, width);
+    }
+
+    @Override
+    public int getWidth(String text) {
         return width;
     }
 

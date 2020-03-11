@@ -11,16 +11,8 @@ public class PriceInfo {
         this.discountPrice = discountPrice;
     }
 
-    public void setBasePrice(int basePrice) {
-        this.basePrice = basePrice;
-    }
-
     public int getDiscountPrice() {
         return discountPrice;
-    }
-
-    public void setDiscountPrice(int discountPrice) {
-        this.discountPrice = discountPrice;
     }
 
     public int getBasePrice() {

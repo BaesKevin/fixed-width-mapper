@@ -30,8 +30,13 @@ public class PriceInfoField implements Field<PriceInfo> {
     }
 
     @Override
-    public int getWidth() {
-        return DISCOUNT_PRICE.getWidth() + BASE_PRICE.getWidth();
+    public Field<PriceInfo> setName(String name) {
+        return new PriceInfoField(name);
+    }
+
+    @Override
+    public int getWidth(String text) {
+        return DISCOUNT_PRICE.getWidth(text) + BASE_PRICE.getWidth(text);
     }
 
     @Override
@@ -52,7 +57,7 @@ public class PriceInfoField implements Field<PriceInfo> {
 
     private String getFormatString() {
         return PRICE_INFO_METADATA.fields().stream()
-                .map(field -> String.format("%%%ds", field.getWidth()))
+                .map(field -> String.format("%%%ds", field.getWidth("")))
                 .collect(Collectors.joining());
     }
 }

@@ -11,8 +11,14 @@ public class StringField implements Field<String> {
 
     @Override
     public String getName() { return name; }
+
     @Override
-    public int getWidth() {
+    public Field<String> setName(String name) {
+        return new StringField(name, width);
+    }
+
+    @Override
+    public int getWidth(String text) {
         return width;
     }
 

@@ -40,7 +40,12 @@ public class ProductField implements Field<Product> {
     }
 
     @Override
-    public int getWidth() {
+    public Field<Product> setName(String name) {
+        return new ProductField();
+    }
+
+    @Override
+    public int getWidth(String text) {
         return 0;
     }
 
@@ -56,7 +61,7 @@ public class ProductField implements Field<Product> {
 
     private String getFormatString() {
         return PRODUCT_METADATA.fields().stream()
-                .map(field -> String.format("%%%ds", field.getWidth()))
+                .map(field -> String.format("%%%ds", field.getWidth("")))
                 .collect(Collectors.joining());
     }
 

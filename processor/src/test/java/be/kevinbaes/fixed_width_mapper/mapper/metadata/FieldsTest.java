@@ -3,6 +3,8 @@ package be.kevinbaes.fixed_width_mapper.mapper.metadata;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -36,8 +38,8 @@ class FieldsTest {
 
     @Test
     public void startingPositionTest() {
-        assertThat(twoStringFields.getStartingPosition(field1)).isEqualTo(0);
-        assertThat(twoStringFields.getStartingPosition(field2)).isEqualTo(5);
+        assertThat(twoStringFields.getStartingPosition(field1, "")).isEqualTo(0);
+        assertThat(twoStringFields.getStartingPosition(field2, "")).isEqualTo(5);
     }
 
     @Test
@@ -52,8 +54,8 @@ class FieldsTest {
                 .addField(stringField)
                 .build();
 
-        assertThat(parent.getStartingPosition(stringField)).isEqualTo(0);
-        assertThat(parent.getStartingPosition(nestedField)).isEqualTo(7);
+        assertThat(parent.getStartingPosition(stringField, "")).isEqualTo(0);
+        assertThat(parent.getStartingPosition(nestedField, "")).isEqualTo(7);
     }
 
     @Test
@@ -72,8 +74,19 @@ class FieldsTest {
     }
 
     @Test
-    public void getObjectFieldAsText() {
+    public void embeddedRepeatedFieldTest() {
+        Field<Integer> counter = new IntegerField("counter", 2);
+        Field<List<String>> repeatingField = new RepeatingField<>("repeating", counter, new StringField("template", 2));
+        Field<String> afterrepeat = new StringField("afterrepeat", 2);
 
+        Fields fields = Fields.builder()
+                .addField(repeatingField)
+                .addField(afterrepeat)
+                .build();
+
+        String encoded = " 2 a b c";
+        assertThat(fields.getFieldAsText(encoded, repeatingField.getName())).isEqualTo(" 2 a b");
+        assertThat(fields.getFieldAsText(encoded, afterrepeat.getName())).isEqualTo(" c");
     }
 
 }

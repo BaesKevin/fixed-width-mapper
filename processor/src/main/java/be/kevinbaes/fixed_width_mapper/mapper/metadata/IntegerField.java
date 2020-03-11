@@ -1,10 +1,10 @@
 package be.kevinbaes.fixed_width_mapper.mapper.metadata;
 
-public class IntegerFieldMetadata implements FieldMetadata<Integer> {
+public class IntegerField implements Field<Integer> {
     private String name;
     private int width;
 
-    public IntegerFieldMetadata(String name, int width) {
+    public IntegerField(String name, int width) {
         this.name = name;
         this.width = width;
     }
@@ -24,4 +24,8 @@ public class IntegerFieldMetadata implements FieldMetadata<Integer> {
         return Integer.class;
     }
 
+    @Override
+    public Integer parse(String text) {
+        return Integer.parseInt(text.trim());
+    }
 }

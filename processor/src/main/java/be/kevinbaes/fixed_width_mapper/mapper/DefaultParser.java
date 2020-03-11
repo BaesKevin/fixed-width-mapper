@@ -1,24 +1,19 @@
 package be.kevinbaes.fixed_width_mapper.mapper;
 
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.FieldMetadata;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.ObjectMetadata;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.Field;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.Fields;
 
-import java.util.*;
-
-import static java.lang.String.format;
-import static java.util.Objects.*;
 import static java.util.Objects.isNull;
+import static java.util.Objects.requireNonNull;
 
 public class DefaultParser implements Parser {
 
     private String encodedString;
-    private ObjectMetadata objectMetadata;
-    private Map<Class<?>, FieldMapper<?>> mappers;
+    private Fields fields;
 
-    public DefaultParser(String encodedString, ObjectMetadata objectMetadata) {
+    public DefaultParser(String encodedString, Fields fields) {
         this.encodedString = requireNonNull(encodedString);
-        this.objectMetadata = objectMetadata;
-        this.mappers = new HashMap<>();
+        this.fields = fields;
     }
 
     public static DefaultParserBuilder builder() {
@@ -26,60 +21,29 @@ public class DefaultParser implements Parser {
     }
 
     @Override
-    public void registerMapper(Class<?> type, FieldMapper<?> mapper) {
-        if (!isNull(mappers.get(type))) {
-            throw new IllegalArgumentException(format("type [%s] already registered", type.getName()));
-        }
-
-        mappers.put(type, mapper);
-    }
-
-    @Override
-    public <T> T parseValue(String partOfEncodedString, Class<T> type) {
-        return (T) Optional.ofNullable(mappers.get(type))
-                .map(m -> m.map(partOfEncodedString))
-                .orElseThrow(() -> new IllegalArgumentException(format("type [%s] not supported", type.getName())));
-    }
-
-    @Override
-    public <T> T parseSingleField(FieldMetadata<T> field) {
-        return parseValue(encodedString, field.getTargetType());
-    }
-
-    @Override
-    public <T> T parseFieldFromObject(FieldMetadata<T> field) {
-        int nameStart = objectMetadata.getStartingPosition(field);
-        int nameEnd = nameStart + field.getWidth();
-        String partAsString = encodedString.substring(nameStart, nameEnd);
-        return parseValue(partAsString, field.getTargetType());
+    public <T> T parseField(Field<T> field) {
+        String fieldAsText = fields.getFieldAsText(encodedString, field.getName());
+        return field.parse(fieldAsText);
     }
 
     public DefaultParserBuilder toBuilder() {
         return builder()
-                .withDefaultMappers() // TODO withMappers method
                 .withEncodedString(encodedString)
-                .withObjectMetadata(objectMetadata);
+                .withFields(fields);
     }
 
     public static class DefaultParserBuilder {
 
-        private Map<Class<?>, FieldMapper<?>> mappers = new HashMap<>();
         private String encodedString;
-        private ObjectMetadata objectMetadata;
-
-        public DefaultParserBuilder withDefaultMappers() {
-            mappers.put(Integer.class, value -> Integer.parseInt(value.trim()));
-            mappers.put(String.class, string -> string);
-            return this;
-        }
+        private Fields fields;
 
         public DefaultParserBuilder withEncodedString(String encodedString) {
             this.encodedString = encodedString;
             return this;
         }
 
-        public DefaultParserBuilder withObjectMetadata(ObjectMetadata objectMetadata) {
-            this.objectMetadata = objectMetadata;
+        public DefaultParserBuilder withFields(Fields fields) {
+            this.fields = fields;
             return this;
         }
 
@@ -88,10 +52,7 @@ public class DefaultParser implements Parser {
                 this.encodedString = "";
             }
 
-            DefaultParser defaultParser = new DefaultParser(encodedString, objectMetadata);
-            mappers.forEach(defaultParser::registerMapper);
-
-            return defaultParser;
+            return new DefaultParser(encodedString, fields);
         }
 
     }

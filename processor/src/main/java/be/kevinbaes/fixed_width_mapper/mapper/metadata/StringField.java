@@ -1,10 +1,10 @@
 package be.kevinbaes.fixed_width_mapper.mapper.metadata;
 
-public class StringFieldMetadata implements FieldMetadata<String> {
+public class StringField implements Field<String> {
     private final String name;
     private final int width;
 
-    public StringFieldMetadata(String name, int width) {
+    public StringField(String name, int width) {
         this.name = name;
         this.width = width;
     }
@@ -20,4 +20,8 @@ public class StringFieldMetadata implements FieldMetadata<String> {
         return String.class;
     }
 
+    @Override
+    public String parse(String text) {
+        return text;
+    }
 }

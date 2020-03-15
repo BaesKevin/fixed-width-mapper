@@ -4,23 +4,15 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
-public class LocalDateField implements Field<LocalDate> {
+public class LocalDateField extends FixedWidthField<LocalDate> {
 
-    private final DateTimeFormatter format;
+    private final DateTimeFormatter dateFormat;
     private final String originalFormat;
-    private String name;
-    private int width;
 
-    public LocalDateField(String name, String format) {
-        this.name = name;
-        this.originalFormat = format;
-        this.format = DateTimeFormatter.ofPattern(format);
-        this.width = format.length();
-    }
-
-    @Override
-    public String getName() {
-        return name;
+    public LocalDateField(String name, String dateFormat) {
+        super(name, dateFormat.length());
+        this.originalFormat = dateFormat;
+        this.dateFormat = DateTimeFormatter.ofPattern(dateFormat);
     }
 
     @Override
@@ -29,14 +21,13 @@ public class LocalDateField implements Field<LocalDate> {
     }
 
     @Override
-    public ParseResult<LocalDate> parseWithResult(String s) {
-        TemporalAccessor temporal = format.parse(s.substring(0, width));
-        LocalDate parse = LocalDate.from(temporal);
-        return new ParseResult<>(parse, width);
+    public LocalDate parseParseablePart(String parseablePart) {
+        TemporalAccessor temporal = dateFormat.parse(parseablePart);
+        return LocalDate.from(temporal);
     }
 
     @Override
     public String toFullWidthString(LocalDate field) {
-        return format.format(field);
+        return dateFormat.format(field);
     }
 }

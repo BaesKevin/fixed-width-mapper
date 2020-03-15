@@ -33,11 +33,12 @@ public class Fields {
     public Map<String, String> split(String encoded) {
         Map<String, String> split = new HashMap<>();
 
-        int charsRead = 0;
+        int totalCharsRead = 0;
         for (Field<?> field : fields) {
-            ParseResult<?> parseResult = field.parseWithResult(encoded.substring(charsRead));
-            split.put(field.getName(), encoded.substring(charsRead, charsRead + parseResult.getCharsRead()));
-            charsRead += parseResult.getCharsRead();
+            ParseResult<?> parseResult = field.parseWithResult(encoded.substring(totalCharsRead));
+            int charsReadForField = parseResult.getCharsRead();
+            split.put(field.getName(), encoded.substring(totalCharsRead, totalCharsRead + charsReadForField));
+            totalCharsRead += charsReadForField;
         }
 
         return split;

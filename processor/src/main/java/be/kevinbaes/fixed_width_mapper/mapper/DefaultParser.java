@@ -20,16 +20,16 @@ public class DefaultParser implements Parser {
         return new DefaultParserBuilder();
     }
 
-    @Override
-    public <T> T parseField(Field<T> field) {
-        String fieldAsText = fields.getFieldAsText(encodedString, field.getName());
-        return field.parse(fieldAsText);
-    }
-
     public DefaultParserBuilder toBuilder() {
         return builder()
                 .withEncodedString(encodedString)
                 .withFields(fields);
+    }
+
+    @Override
+    public <T> T parseField(Field<T> field) {
+        String fieldAsText = fields.getFieldAsText(encodedString, field.getName());
+        return field.parse(fieldAsText);
     }
 
     @Override

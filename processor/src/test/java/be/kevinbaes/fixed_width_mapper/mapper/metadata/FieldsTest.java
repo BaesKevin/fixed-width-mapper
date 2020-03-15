@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,25 +38,33 @@ class FieldsTest {
     }
 
     @Test
-    public void startingPositionTest() {
-        assertThat(twoStringFields.getStartingPosition(field1, "")).isEqualTo(0);
-        assertThat(twoStringFields.getStartingPosition(field2, "")).isEqualTo(5);
+    public void parse_returnsTheFieldParsedValue() {
+        StringField txt = new StringField("txt", 5);
+        IntegerField num = new IntegerField("num", 6);
+
+        Fields fields = Fields.builder().addField(txt). addField(num).build();
+
+        String encoded = format("%5s%6s", "foo", 56);
+
+        assertThat(fields.parse(encoded, txt).trim()).isEqualTo("foo");
+        assertThat(fields.parse(encoded, num)).isEqualTo(56);
     }
 
     @Test
-    public void getStartingPositionWorksForNestedFields() {
-        Field<String> stringField = new StringField("field1",7);
-        Field<String> nestedField = new StringField("field2", 4);
-        Fields nestedObjectMetadata = Fields.builder()
-                .addField(nestedField)
-                .build();
+    public void split_returnsMapWithAllParsedValues() {
+        StringField txt = new StringField("txt", 5);
+        IntegerField num = new IntegerField("num", 6);
+        IntegerField repeatVal = new IntegerField("val", 1);
+        RepeatingField<Integer> repeat = new RepeatingField<>("repeating", new IntegerField("counter", 1), repeatVal);
 
-        Fields parent = Fields.builder()
-                .addField(stringField)
-                .build();
+        Fields fields = Fields.builder().addField(txt). addField(num).addField(repeat).build();
 
-        assertThat(parent.getStartingPosition(stringField, "")).isEqualTo(0);
-        assertThat(parent.getStartingPosition(nestedField, "")).isEqualTo(7);
+        String encoded = format("%5s%6s234", "foo", 56);
+
+        Map<String, String> split = fields.split(encoded);
+        assertThat(split.get("txt").trim()).isEqualTo("foo");
+        assertThat(split.get("num").trim()).isEqualTo("56");
+        assertThat(split.get("repeating")).isEqualTo("234");
     }
 
     @Test

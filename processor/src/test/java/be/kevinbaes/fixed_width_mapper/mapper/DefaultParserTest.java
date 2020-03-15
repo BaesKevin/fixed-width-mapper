@@ -79,4 +79,21 @@ public class DefaultParserTest {
         assertThat(rebuild.parseField(stringField).trim()).isEqualTo("other");
     }
 
+    @Test
+    public void getWidthReturnsTotalNumberOfCharsReadFromFields() {
+        Field<String> stringField = new StringField("part1", 2);
+        Field<String> stringField2 = new StringField("part2", 3);
+        Fields fields = Fields.builder().addField(stringField).addField(stringField2).build();
+
+        String part1 = String.format("%2s", "a");
+        String part2 = String.format("%3s", "b");
+
+        Parser parser = DefaultParser.builder()
+                .withEncodedString(part1 + part2)
+                .withFields(fields)
+                .build();
+
+        assertThat(parser.getParseableCharacters()).isEqualTo(5);
+    }
+
 }

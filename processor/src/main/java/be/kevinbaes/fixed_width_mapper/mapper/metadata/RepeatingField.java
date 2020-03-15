@@ -1,8 +1,6 @@
 package be.kevinbaes.fixed_width_mapper.mapper.metadata;
 
-import be.kevinbaes.fixed_width_mapper.mapper.DefaultParser;
-import be.kevinbaes.fixed_width_mapper.mapper.Parser;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -29,51 +27,39 @@ public class RepeatingField<U> implements Field<List<U>> {
         return new RepeatingField<>(name, counter, template);
     }
 
-    // TODO find a way to get the width without having to parse the text
     @Override
-    public int getWidth(String text) {
-        Fields counterFields = Fields.builder().addField(counter).build();
-        Parser counterParser = DefaultParser.builder().withEncodedString(text).withFields(counterFields).build();
-        int count = counterParser.parseField(counter);
-        return counter.getWidth(text) + template.getWidth(text) * count;
-    }
+    public ParseResult<List<U>> parseWithResult(String s) {
+        ParseResult<Integer> integerParseResult = counter.parseWithResult(s);
+        int counterWidth = integerParseResult.getCharsRead();
+        int count = integerParseResult.getValue();
 
-    @Override
-    public List<U> parse(String text) {
-        int count = parseCount(text);
-        List<?> result = parseRepeatedFields(text, count);
-
-        return (List<U>) result;
-    }
-
-    private List<?> parseRepeatedFields(String text, int count) {
         Fields repeatedFields = createRepeatedFields(count);
-        Parser repeatingFieldsParser = DefaultParser.builder()
-                .withEncodedString(text)
-                .withFields(repeatedFields)
-                .build();
+        List<U> result = new ArrayList<>();
+        int charsRead = counterWidth;
 
-        return repeatedFields.fields().stream()
-                .map(repeatingFieldsParser::parseField)
-                .collect(Collectors.toList());
+        for (Field<?> field : repeatedFields.fields()) {
+            String current = s.substring(charsRead);
+            ParseResult<U> result1 = (ParseResult<U>) field.parseWithResult(current);
+            charsRead += result1.getCharsRead();
+            result.add(result1.getValue());
+        }
+
+        return new ParseResult<>(result, charsRead);
     }
 
     private Fields createRepeatedFields(int count) {
-        Fields.FieldsBuilder repeatedFieldsBuilder = Fields.builder().addField(counter);
+        Fields.FieldsBuilder repeatedFieldsBuilder = Fields.builder();
         IntStream.range(0, count).forEach(i -> repeatedFieldsBuilder.addField(template.setName("base" + i)));
 
         return repeatedFieldsBuilder.build();
     }
 
-    private int parseCount(String text) {
-        Fields.FieldsBuilder fiedsBuilder = Fields.builder().addField(counter);
-        Fields counterFields = fiedsBuilder.build();
-        Parser counterParser = DefaultParser.builder().withEncodedString(text).withFields(counterFields).build();
-        return counterParser.parseField(counter);
+    @Override
+    public String toFullWidthString(List<U> field) {
+        String counter = this.counter.toFullWidthString(field.size());
+        String fields = field.stream().map(template::toFullWidthString).collect(Collectors.joining(""));
+
+        return counter + fields;
     }
 
-    @Override
-    public String toString(List<U> field) {
-        return null;
-    }
 }

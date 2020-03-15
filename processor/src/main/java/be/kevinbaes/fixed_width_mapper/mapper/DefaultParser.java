@@ -32,6 +32,11 @@ public class DefaultParser implements Parser {
                 .withFields(fields);
     }
 
+    @Override
+    public int getParseableCharacters() {
+        return fields.split(encodedString).values().stream().mapToInt(String::length).sum();
+    }
+
     public static class DefaultParserBuilder {
 
         private String encodedString;

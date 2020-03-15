@@ -13,18 +13,9 @@ class RepeatingFieldTest {
         Field<Integer> countingField = new IntegerField("repeatingcounter", 2);
         RepeatingField<String> repeatField = new RepeatingField<>("repeatingfield", countingField, new StringField("base", 2));
 
-        List<String> parsed = repeatField.parse(" 3 a b c");
-        assertThat(parsed).contains(" a", " b", " c");
-    }
-
-    @Test
-    public void getWidthAssumesTheCounterIsAtTheStartOfTheInput() {
-        Field<Integer> countingField = new IntegerField("repeatingcounter", 2);
-        RepeatingField<String> repeatField = new RepeatingField<>("repeatingfield", countingField, new StringField("base", 2));
-
-        String encoded = " 3 a b c";
-
-        assertThat(repeatField.getWidth(encoded)).isEqualTo(8);
+        ParseResult<List<String>> parsed = repeatField.parseWithResult(" 3 a b c");
+        assertThat(parsed.getValue()).contains(" a", " b", " c");
+        assertThat(parsed.getCharsRead()).isEqualTo(8);
     }
 
     @Test
@@ -35,5 +26,7 @@ class RepeatingFieldTest {
         List<Integer> parsed = repeatField.parse(" 3 5 6 7");
         assertThat(parsed).contains(5, 6, 7);
     }
+
+
 
 }

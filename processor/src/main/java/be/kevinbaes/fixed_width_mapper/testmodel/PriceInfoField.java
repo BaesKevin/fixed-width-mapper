@@ -5,8 +5,7 @@ import be.kevinbaes.fixed_width_mapper.mapper.Parser;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.Field;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.Fields;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.IntegerField;
-
-import java.util.stream.Collectors;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.ParseResult;
 
 public class PriceInfoField implements Field<PriceInfo> {
     private String name;
@@ -35,29 +34,16 @@ public class PriceInfoField implements Field<PriceInfo> {
     }
 
     @Override
-    public int getWidth(String text) {
-        return DISCOUNT_PRICE.getWidth(text) + BASE_PRICE.getWidth(text);
-    }
-
-    @Override
-    public PriceInfo parse(String text) {
-        Parser parser = DefaultParser.builder().withEncodedString(text).withFields(PRICE_INFO_METADATA).build();
+    public ParseResult<PriceInfo> parseWithResult(String s) {
+        Parser parser = DefaultParser.builder().withEncodedString(s).withFields(PRICE_INFO_METADATA).build();
         int basePrice = parser.parseField(BASE_PRICE);
         int discountPrice = parser.parseField(DISCOUNT_PRICE);
-        return new PriceInfo(basePrice, discountPrice);
+        return new ParseResult<>(new PriceInfo(basePrice, discountPrice), parser.getParseableCharacters());
     }
 
     @Override
-    public String toString(PriceInfo field) {
-        String formatString = getFormatString();
-        return String.format(formatString,
-                field.getBasePrice(),
-                field.getDiscountPrice());
+    public String toFullWidthString(PriceInfo field) {
+        return BASE_PRICE.toFullWidthString(field.getBasePrice()) + DISCOUNT_PRICE.toFullWidthString(field.getDiscountPrice());
     }
 
-    private String getFormatString() {
-        return PRICE_INFO_METADATA.fields().stream()
-                .map(field -> String.format("%%%ds", field.getWidth("")))
-                .collect(Collectors.joining());
-    }
 }

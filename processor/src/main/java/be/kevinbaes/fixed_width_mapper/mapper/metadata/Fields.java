@@ -21,31 +21,26 @@ public class Fields {
     }
 
     public String getFieldAsText(String encoded, String fieldName) {
-        Field<?> field = getField(fieldName);
-        int fieldStart = getStartingPosition(field, encoded);
-        int fieldEnd = fieldStart + field.getWidth(encoded);
-
-        return encoded.substring(fieldStart, fieldEnd);
+        return this.split(encoded).get(fieldName);
     }
 
-    public Field<?> getField(String name) {
-        return fields.stream()
-                .filter(field -> field.getName().equals(name))
-                .findFirst()
-                .orElseThrow();
+    public <T> T parse(String encoded, Field<T> field) {
+        Map<String, String> split = split(encoded);
+
+        return field.parse(split.get(field.getName()));
     }
 
-    int getStartingPosition(Field<?> fieldToRead, String text) {
-        int startingPosition = 0;
+    public Map<String, String> split(String encoded) {
+        Map<String, String> split = new HashMap<>();
 
+        int charsRead = 0;
         for (Field<?> field : fields) {
-            if (field.isEqualTo(fieldToRead)) {
-                break;
-            }
-            startingPosition += field.getWidth(text);
+            ParseResult<?> parseResult = field.parseWithResult(encoded.substring(charsRead));
+            split.put(field.getName(), encoded.substring(charsRead, charsRead + parseResult.getCharsRead()));
+            charsRead += parseResult.getCharsRead();
         }
 
-        return startingPosition;
+        return split;
     }
 
     public static class FieldsBuilder {

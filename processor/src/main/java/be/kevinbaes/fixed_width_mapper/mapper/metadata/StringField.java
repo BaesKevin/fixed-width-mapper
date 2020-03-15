@@ -1,5 +1,7 @@
 package be.kevinbaes.fixed_width_mapper.mapper.metadata;
 
+import static java.lang.String.format;
+
 public class StringField implements Field<String> {
     private final String name;
     private final int width;
@@ -17,18 +19,18 @@ public class StringField implements Field<String> {
         return new StringField(name, width);
     }
 
-    @Override
-    public int getWidth(String text) {
+    public int getWidth() {
         return width;
     }
 
     @Override
-    public String parse(String text) {
-        return text;
+    public ParseResult<String> parseWithResult(String s) {
+        return new ParseResult<>(s.substring(0, getWidth()), getWidth());
     }
 
     @Override
-    public String toString(String field) {
-        return field;
+    public String toFullWidthString(String field) {
+        return format("%" + width + "s", field);
     }
+
 }

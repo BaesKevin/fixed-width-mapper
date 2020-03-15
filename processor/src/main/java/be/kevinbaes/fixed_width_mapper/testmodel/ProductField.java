@@ -2,12 +2,7 @@ package be.kevinbaes.fixed_width_mapper.testmodel;
 
 import be.kevinbaes.fixed_width_mapper.mapper.DefaultParser;
 import be.kevinbaes.fixed_width_mapper.mapper.Parser;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.Field;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.Fields;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.IntegerField;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.StringField;
-
-import java.util.stream.Collectors;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.*;
 
 public class ProductField implements Field<Product> {
     private final Field<String> NAME = new StringField("name", 10);
@@ -22,47 +17,39 @@ public class ProductField implements Field<Product> {
             .addField(PRICE_INFO)
             .build();
 
+    private String name;
+
+    public ProductField(String name) {
+        this.name = name;
+    }
 
     @Override
-    public Product parse(String text) {
-        Parser parser = DefaultParser.builder().withEncodedString(text).withFields(PRODUCT_METADATA).build();
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public Field<Product> setName(String name) {
+        return new ProductField(name);
+    }
+
+    @Override
+    public ParseResult<Product> parseWithResult(String s) {
+        Parser parser = DefaultParser.builder().withEncodedString(s).withFields(PRODUCT_METADATA).build();
         String name = parser.parseField(NAME);
         int amountInStock = parser.parseField(STOCK);
         String description = parser.parseField(DESCRIPTION);
         PriceInfo priceInfo = parser.parseField(PRICE_INFO);
 
-        return new Product(name.trim(), description.trim(), amountInStock, priceInfo);
+        return new ParseResult<>(new Product(name.trim(), description.trim(), amountInStock, priceInfo), parser.getParseableCharacters());
     }
 
     @Override
-    public String getName() {
-        return "foo";
-    }
-
-    @Override
-    public Field<Product> setName(String name) {
-        return new ProductField();
-    }
-
-    @Override
-    public int getWidth(String text) {
-        return 0;
-    }
-
-    @Override
-    public String toString(Product product) {
-        String formatString = getFormatString();
-        return String.format(formatString,
-                product.getName(),
-                product.getDescription(),
-                product.getAmountInStock(),
-                PRICE_INFO.toString(product.getPriceInfo()));
-    }
-
-    private String getFormatString() {
-        return PRODUCT_METADATA.fields().stream()
-                .map(field -> String.format("%%%ds", field.getWidth("")))
-                .collect(Collectors.joining());
+    public String toFullWidthString(Product product) {
+        return NAME.toFullWidthString(product.getName()) +
+                DESCRIPTION.toFullWidthString(product.getDescription()) +
+                STOCK.toFullWidthString(product.getAmountInStock()) +
+                PRICE_INFO.toFullWidthString(product.getPriceInfo());
     }
 
 }

@@ -1,12 +1,10 @@
 package be.kevinbaes.fixed_width_mapper.mapper;
 
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.Field;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.Fields;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.IntegerField;
-import be.kevinbaes.fixed_width_mapper.mapper.metadata.StringField;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.*;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public class DefaultParserTest {
 
@@ -14,11 +12,13 @@ public class DefaultParserTest {
     public void parseSingleField() {
         String partOfEncodedString = "1";
         Field<Integer> integerField = new IntegerField("foo", 1);
-        Fields fields = Fields.builder().addField(integerField).build();
 
-        Parser parser = DefaultParser.builder().withEncodedString(partOfEncodedString).withFields(fields).build();
+        Parser parser = DefaultParser.builder()
+                .withEncodedString(partOfEncodedString)
+                .withFields(integerField)
+                .build();
 
-        int result = parser.parseField(integerField);
+        int result = parser.getValueFor(integerField);
 
         assertThat(result).isEqualTo(1);
     }
@@ -28,19 +28,14 @@ public class DefaultParserTest {
         Field<Integer> integerField = new IntegerField("foo", 4);
         Field<String> stringField = new StringField("bar", 20);
 
-        Fields metadata = Fields.builder()
-                .addField(integerField)
-                .addField(stringField)
-                .build();
-
         String partOfEncodedString = String.format("%4s%20s", 23, "description");
 
         Parser parser = DefaultParser.builder()
                 .withEncodedString(partOfEncodedString)
-                .withFields(metadata)
+                .withFields(integerField, stringField)
                 .build();
-        int result = parser.parseField(integerField);
-        String stringResult = parser.parseField(stringField).trim();
+        int result = parser.getValueFor(integerField);
+        String stringResult = parser.getValueFor(stringField).trim();
 
         assertThat(result).isEqualTo(23);
         assertThat(stringResult).isEqualTo("description");
@@ -50,14 +45,13 @@ public class DefaultParserTest {
     public void builderWithDefaultMappersAndMetadata() {
         String partOfEncodedString = String.format("%20s", "description");
         Field<String> stringField = new StringField("bar", 20);
-        Fields fields = Fields.builder().addField(stringField).build();
 
         Parser parser = DefaultParser.builder()
                 .withEncodedString(partOfEncodedString)
-                .withFields(fields)
+                .withFields(stringField)
                 .build();
 
-        assertThat(parser.parseField(stringField).trim()).isEqualTo("description");
+        assertThat(parser.getValueFor(stringField).trim()).isEqualTo("description");
     }
 
     @Test
@@ -66,34 +60,64 @@ public class DefaultParserTest {
         String otherString = String.format("%20s", "other");
         Field<String> stringField = new StringField("bar", 20);
 
-        Fields fields = Fields.builder().addField(stringField).build();
         DefaultParser original = DefaultParser.builder()
                 .withEncodedString(partOfEncodedString)
-                .withFields(fields)
+                .withFields(stringField)
                 .build();
 
         DefaultParser.DefaultParserBuilder builder = original.toBuilder();
 
         DefaultParser rebuild = builder.withEncodedString(otherString).build();
 
-        assertThat(rebuild.parseField(stringField).trim()).isEqualTo("other");
+        assertThat(rebuild.getValueFor(stringField).trim()).isEqualTo("other");
     }
 
     @Test
     public void getWidthReturnsTotalNumberOfCharsReadFromFields() {
         Field<String> stringField = new StringField("part1", 2);
         Field<String> stringField2 = new StringField("part2", 3);
-        Fields fields = Fields.builder().addField(stringField).addField(stringField2).build();
 
         String part1 = String.format("%2s", "a");
         String part2 = String.format("%3s", "b");
 
         Parser parser = DefaultParser.builder()
                 .withEncodedString(part1 + part2)
-                .withFields(fields)
+                .withFields(stringField, stringField2)
                 .build();
 
         assertThat(parser.getParseableCharacters()).isEqualTo(5);
+    }
+
+    @Test
+    public void toStringReturnsAStringUsefullInDebugging() {
+        Field<String> stringField = new StringField("part1", 2);
+        Field<String> stringField2 = new StringField("part2", 3);
+
+        String part1 = String.format("%2s", "a");
+        String part2 = String.format("%3s", "b");
+        String encodedString = part1 + part2;
+
+        Parser parser = DefaultParser.builder()
+                .withEncodedString(encodedString)
+                .withFields(stringField, stringField2)
+                .build();
+
+        assertThat(parser.toString()).isEqualTo(
+                "encoded string:\n[" + encodedString + "]\n" +
+                        "part1 = [ a] (2 chars)\n" +
+                        "part2 = [  b] (3 chars)"
+        );
+    }
+
+    @Test
+    public void parsingEncodedStringThatIsTooShortThrowsWithDebugString() {
+        Field<String> stringField = new StringField("part1", 3);
+
+        DefaultParser.DefaultParserBuilder builder = DefaultParser.builder()
+                .withFields(stringField);
+
+        assertThat(builder.withEncodedString("1234").build().getParseableCharacters()).isEqualTo(3);
+        assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> builder.withEncodedString("12").build());
     }
 
 }

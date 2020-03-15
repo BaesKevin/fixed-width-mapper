@@ -1,5 +1,9 @@
 package be.kevinbaes.fixed_width_mapper.mapper.metadata;
 
+import java.text.ParseException;
+
+import static java.lang.String.format;
+
 public abstract class FixedWidthField<T> implements Field<T> {
 
     private final int width;
@@ -25,7 +29,7 @@ public abstract class FixedWidthField<T> implements Field<T> {
         int end = getWidth();
 
         if (s.length() < end) {
-            end = s.length();
+            throw new ParsingException(format("Trying to parse field of width %d form a string with width %s", width, s.length()));
         }
 
         return new ParseResult<>(parseParseablePart(s.substring(0, end)), end);
@@ -35,6 +39,6 @@ public abstract class FixedWidthField<T> implements Field<T> {
 
     @Override
     public String toFullWidthString(T field) {
-        return String.format("%" + width + "s", field);
+        return format("%" + width + "s", field);
     }
 }

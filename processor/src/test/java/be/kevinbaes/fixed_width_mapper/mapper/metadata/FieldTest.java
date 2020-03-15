@@ -23,7 +23,7 @@ class FieldTest {
         Field<Integer> integerField = new IntegerField("field2", 5);
 
         assertThat(stringField.parse("text1")).isEqualTo("text1");
-        assertThat(integerField.parse("5")).isEqualTo(5);
+        assertThat(integerField.parse("    5")).isEqualTo(5);
     }
 
     @Test

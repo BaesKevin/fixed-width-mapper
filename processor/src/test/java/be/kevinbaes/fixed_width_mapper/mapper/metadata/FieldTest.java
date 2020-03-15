@@ -33,7 +33,7 @@ class FieldTest {
 
         IntegerField intcollectionval = new IntegerField("intcollectionval", 2);
         IntegerField intcollectioncounter = new IntegerField("intcollectioncounter", 2);
-        Field<List<Integer>> intCollection = new RepeatingField<>("intcollection", intcollectioncounter, intcollectionval);
+        Field<List<Integer>> intCollection = new RepeatingFieldWithCounter<>("intcollection", intcollectioncounter, intcollectionval);
 
         assertThat(stringField.toFullWidthString("abc")).isEqualTo("  abc");
         assertThat(integerField.toFullWidthString(34)).isEqualTo("   34");

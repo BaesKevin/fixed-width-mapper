@@ -4,29 +4,30 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class RepeatingFieldTest {
 
     @Test
-    public void repeatingFieldTest() {
-        Field<Integer> countingField = new IntegerField("repeatingcounter", 2);
-        RepeatingField<String> repeatField = new RepeatingField<>("repeatingfield", countingField, new StringField("base", 2));
+    public void parseTest() {
+        Field<List<Integer>> field = new RepeatingField<>("field", 3, new IntegerField("template", 1));
 
-        ParseResult<List<String>> parsed = repeatField.parseWithResult(" 3 a b c");
-        assertThat(parsed.getValue()).contains(" a", " b", " c");
-        assertThat(parsed.getCharsRead()).isEqualTo(8);
+        ParseResult<List<Integer>> listParseResult = field.parseWithResult("1234");
+
+        assertThat(listParseResult.getCharsRead()).isEqualTo(3);
+        assertThat(listParseResult.getValue()).containsOnly(1, 2, 3);
     }
+
 
     @Test
-    public void repeatingFieldWithIntegerTemplate() {
-        Field<Integer> countingField = new IntegerField("repeatingcounter", 2);
-        RepeatingField<Integer> repeatField = new RepeatingField<>("repeatingfield", countingField, new IntegerField("base", 2));
+    public void toFullWidthString() {
+        Field<List<Integer>> field = new RepeatingField<>("field", 3, new IntegerField("template", 1));
 
-        List<Integer> parsed = repeatField.parse(" 3 5 6 7");
-        assertThat(parsed).contains(5, 6, 7);
+        List<Integer> numbers = asList(1, 2, 3);
+
+        assertThat(field.toFullWidthString(numbers)).isEqualTo("123");
     }
-
 
 
 }

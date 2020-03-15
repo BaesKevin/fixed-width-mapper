@@ -1,6 +1,5 @@
 package be.kevinbaes.fixed_width_mapper.testmodel;
 
-import be.kevinbaes.fixed_width_mapper.mapper.CachedParser;
 import be.kevinbaes.fixed_width_mapper.mapper.Parser;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.*;
 
@@ -15,7 +14,7 @@ public class ShoppingCartField extends CompositeField<ShoppingCart> {
 
     private static final IntegerField productcounter = new IntegerField("productcount", 2);;
     private static final ProductField productfieldtemplate = new ProductField("product");
-    private static final RepeatingField<Product> productsField = new RepeatingField<>("products", productcounter, productfieldtemplate);
+    private static final RepeatingFieldWithCounter<Product> productsField = new RepeatingFieldWithCounter<>("products", productcounter, productfieldtemplate);
 
     public ShoppingCartField(String name) {
         super(name,asList(nameField, productsField, creationDateField));

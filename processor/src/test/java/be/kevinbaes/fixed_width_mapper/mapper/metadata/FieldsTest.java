@@ -55,7 +55,7 @@ class FieldsTest {
         StringField txt = new StringField("txt", 5);
         IntegerField num = new IntegerField("num", 6);
         IntegerField repeatVal = new IntegerField("val", 1);
-        RepeatingField<Integer> repeat = new RepeatingField<>("repeating", new IntegerField("counter", 1), repeatVal);
+        RepeatingFieldWithCounter<Integer> repeat = new RepeatingFieldWithCounter<>("repeating", new IntegerField("counter", 1), repeatVal);
 
         Fields fields = Fields.builder().addField(txt). addField(num).addField(repeat).build();
 
@@ -85,7 +85,7 @@ class FieldsTest {
     @Test
     public void embeddedRepeatedFieldTest() {
         Field<Integer> counter = new IntegerField("counter", 2);
-        Field<List<String>> repeatingField = new RepeatingField<>("repeating", counter, new StringField("template", 2));
+        Field<List<String>> repeatingField = new RepeatingFieldWithCounter<>("repeating", counter, new StringField("template", 2));
         Field<String> afterrepeat = new StringField("afterrepeat", 2);
 
         Fields fields = Fields.builder()

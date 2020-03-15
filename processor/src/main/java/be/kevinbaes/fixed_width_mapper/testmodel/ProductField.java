@@ -1,6 +1,5 @@
 package be.kevinbaes.fixed_width_mapper.testmodel;
 
-import be.kevinbaes.fixed_width_mapper.mapper.CachedParser;
 import be.kevinbaes.fixed_width_mapper.mapper.Parser;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.*;
 

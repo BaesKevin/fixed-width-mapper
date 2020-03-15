@@ -1,24 +1,19 @@
 package be.kevinbaes.fixed_width_mapper.testmodel;
 
-import be.kevinbaes.fixed_width_mapper.mapper.DefaultParser;
 import be.kevinbaes.fixed_width_mapper.mapper.Parser;
+import be.kevinbaes.fixed_width_mapper.mapper.metadata.CompositeField;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.Field;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.IntegerField;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.ParseResult;
 
-public class PriceInfoField implements Field<PriceInfo> {
-    private String name;
+import static java.util.Arrays.asList;
 
+public class PriceInfoField extends CompositeField<PriceInfo> {
     public static final Field<Integer> DISCOUNT_PRICE = new IntegerField("discount price", 5);
     public static final Field<Integer> BASE_PRICE = new IntegerField("base price", 5);
 
     public PriceInfoField(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        super(name, asList(BASE_PRICE, DISCOUNT_PRICE));
     }
 
     @Override
@@ -27,8 +22,7 @@ public class PriceInfoField implements Field<PriceInfo> {
     }
 
     @Override
-    public ParseResult<PriceInfo> parseWithResult(String s) {
-        Parser parser = DefaultParser.builder().withEncodedString(s).withFields(BASE_PRICE, DISCOUNT_PRICE).build();
+    public ParseResult<PriceInfo> parseForParser(Parser parser) {
         int basePrice = parser.getValueFor(BASE_PRICE);
         int discountPrice = parser.getValueFor(DISCOUNT_PRICE);
         return new ParseResult<>(new PriceInfo(basePrice, discountPrice), parser.getParseableCharacters());

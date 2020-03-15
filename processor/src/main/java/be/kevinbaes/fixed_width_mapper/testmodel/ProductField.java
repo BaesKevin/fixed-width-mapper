@@ -1,24 +1,19 @@
 package be.kevinbaes.fixed_width_mapper.testmodel;
 
-import be.kevinbaes.fixed_width_mapper.mapper.DefaultParser;
+import be.kevinbaes.fixed_width_mapper.mapper.CachedParser;
 import be.kevinbaes.fixed_width_mapper.mapper.Parser;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.*;
 
-public class ProductField implements Field<Product> {
-    private final Field<String> NAME = new StringField("name", 10);
-    private final Field<String> DESCRIPTION = new StringField("description",20);
-    private final Field<Integer> STOCK = new IntegerField("amount in stock",3);
-    private final Field<PriceInfo> PRICE_INFO = new PriceInfoField("priceinfo");
+import static java.util.Arrays.asList;
 
-    private String name;
+public class ProductField extends CompositeField<Product> {
+    private static final Field<String> NAME = new StringField("name", 10);
+    private static final Field<String> DESCRIPTION = new StringField("description",20);
+    private static final Field<Integer> STOCK = new IntegerField("amount in stock",3);
+    private static final Field<PriceInfo> PRICE_INFO = new PriceInfoField("priceinfo");
 
     public ProductField(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        super(name, asList(NAME, DESCRIPTION, STOCK, PRICE_INFO));
     }
 
     @Override
@@ -27,8 +22,7 @@ public class ProductField implements Field<Product> {
     }
 
     @Override
-    public ParseResult<Product> parseWithResult(String s) {
-        Parser parser = DefaultParser.builder().withEncodedString(s).withFields(NAME, DESCRIPTION, STOCK, PRICE_INFO).build();
+    public ParseResult<Product> parseForParser(Parser parser) {
         String name = parser.getValueFor(NAME);
         int amountInStock = parser.getValueFor(STOCK);
         String description = parser.getValueFor(DESCRIPTION);

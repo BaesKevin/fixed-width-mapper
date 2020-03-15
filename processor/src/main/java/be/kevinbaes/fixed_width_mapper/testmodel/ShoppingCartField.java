@@ -1,34 +1,24 @@
 package be.kevinbaes.fixed_width_mapper.testmodel;
 
-import be.kevinbaes.fixed_width_mapper.mapper.DefaultParser;
+import be.kevinbaes.fixed_width_mapper.mapper.CachedParser;
 import be.kevinbaes.fixed_width_mapper.mapper.Parser;
 import be.kevinbaes.fixed_width_mapper.mapper.metadata.*;
 
 import java.time.LocalDate;
 import java.util.List;
 
-public class ShoppingCartField implements Field<ShoppingCart> {
-    private final StringField nameField;
-    private final LocalDateField creationDateField;
-    private String name;
+import static java.util.Arrays.asList;
 
-    private final IntegerField productcounter;
-    private final ProductField productfieldtemplate;
-    private final RepeatingField<Product> productsField;
+public class ShoppingCartField extends CompositeField<ShoppingCart> {
+    private static final StringField nameField= new StringField("name", 5);
+    private static final LocalDateField creationDateField =  new LocalDateField("creationDate", "yyyy-MM-dd");
+
+    private static final IntegerField productcounter = new IntegerField("productcount", 2);;
+    private static final ProductField productfieldtemplate = new ProductField("product");
+    private static final RepeatingField<Product> productsField = new RepeatingField<>("products", productcounter, productfieldtemplate);
 
     public ShoppingCartField(String name) {
-        this.name = name;
-
-        productcounter = new IntegerField("productcount", 2);
-        productfieldtemplate = new ProductField("product");
-        productsField = new RepeatingField<>("products", productcounter, productfieldtemplate);
-        nameField = new StringField("name", 5);
-        creationDateField = new LocalDateField("creationDate", "yyyy-MM-dd");
-    }
-
-    @Override
-    public String getName() {
-        return name;
+        super(name,asList(nameField, productsField, creationDateField));
     }
 
     @Override
@@ -37,12 +27,10 @@ public class ShoppingCartField implements Field<ShoppingCart> {
     }
 
     @Override
-    public ParseResult<ShoppingCart> parseWithResult(String s) {
-        Parser parser = DefaultParser.builder().withEncodedString(s).withFields(nameField, productsField, creationDateField).build();
-        String name = parser.getValueFor(nameField);
+    public ParseResult<ShoppingCart> parseForParser(Parser parser) {
         List<Product> products = parser.getValueFor(productsField);
         LocalDate creationDate = parser.getValueFor(creationDateField);
-        return new ParseResult<>(new ShoppingCart(name.trim(), products, creationDate), parser.getParseableCharacters());
+        return new ParseResult<>(new ShoppingCart(getName().trim(), products, creationDate), parser.getParseableCharacters());
     }
 
     @Override

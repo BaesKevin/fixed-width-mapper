@@ -11,25 +11,25 @@ import static java.lang.String.format;
 import static java.util.Objects.isNull;
 import static java.util.Objects.requireNonNull;
 
-public class DefaultParser implements Parser {
+public class CachedParser implements Parser {
 
     private String encodedString;
     private Fields fields;
-    private Map<String, String> split;
+    private Map<String, String> parsedFields;
     private String debugString;
 
-    private DefaultParser(String encodedString, Fields fields, Map<String, String> split, String debugString) {
+    private CachedParser(String encodedString, Fields fields, Map<String, String> parsedFields, String debugString) {
         this.encodedString = requireNonNull(encodedString);
         this.fields = fields;
-        this.split = split;
+        this.parsedFields = parsedFields;
         this.debugString = debugString;
     }
 
-    public static DefaultParserBuilder builder() {
-        return new DefaultParserBuilder();
+    public static CachedParserBuilder builder() {
+        return new CachedParserBuilder();
     }
 
-    public DefaultParserBuilder toBuilder() {
+    public CachedParserBuilder toBuilder() {
         return builder()
                 .withEncodedString(encodedString)
                 .withFields(fields);
@@ -37,13 +37,13 @@ public class DefaultParser implements Parser {
 
     @Override
     public <T> T getValueFor(Field<T> field) {
-        String fieldAsText = split.get(field.getName());
+        String fieldAsText = parsedFields.get(field.getName());
         return field.parse(fieldAsText);
     }
 
     @Override
     public int getParseableCharacters() {
-        return split.values().stream().mapToInt(String::length).sum();
+        return parsedFields.values().stream().mapToInt(String::length).sum();
     }
 
     @Override
@@ -51,28 +51,32 @@ public class DefaultParser implements Parser {
         return debugString;
     }
 
-    public static class DefaultParserBuilder {
+    public CachedParser withEncodedString(String encodedString) {
+        return toBuilder().withEncodedString(encodedString).build();
+    }
+
+    public static class CachedParserBuilder {
 
         private final Fields.FieldsBuilder fieldsBuilder;
         private String encodedString;
 
-        public DefaultParserBuilder() {
+        public CachedParserBuilder() {
             fieldsBuilder = Fields.builder();
         }
 
-        public DefaultParserBuilder withEncodedString(String encodedString) {
+        public CachedParserBuilder withEncodedString(String encodedString) {
             this.encodedString = encodedString;
             return this;
         }
 
-        public DefaultParserBuilder withFields(Field<?>... fields) {
+        public CachedParserBuilder withFields(Field<?>... fields) {
             for (Field<?> field : fields) {
                 fieldsBuilder.addField(field);
             }
             return this;
         }
 
-        public DefaultParserBuilder withFields(Fields fields) {
+        public CachedParserBuilder withFields(Fields fields) {
             fields.fields().forEach(this::withFields);
             return this;
         }
@@ -91,7 +95,7 @@ public class DefaultParser implements Parser {
             return format("%s = [%s] (%d chars)", fieldname, fieldvalue, fieldvalue.length());
         }
 
-        public DefaultParser build() {
+        public CachedParser build() {
             if (isNull(encodedString)) {
                 this.encodedString = "";
             }
@@ -105,7 +109,7 @@ public class DefaultParser implements Parser {
                 throw new ParsingException("Encoded string contains less characters than can be parsed: \n" + debugString);
             }
 
-            return new DefaultParser(encodedString, fields, split, debugString);
+            return new CachedParser(encodedString, fields, split, debugString);
         }
 
     }

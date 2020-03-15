@@ -1,7 +1,5 @@
 package be.kevinbaes.fixed_width_mapper.mapper.metadata;
 
-import java.text.ParseException;
-
 import static java.lang.String.format;
 
 public abstract class FixedWidthField<T> implements Field<T> {

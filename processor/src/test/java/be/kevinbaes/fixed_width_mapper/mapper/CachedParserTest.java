@@ -6,14 +6,14 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public class DefaultParserTest {
+public class CachedParserTest {
 
     @Test
     public void parseSingleField() {
         String partOfEncodedString = "1";
         Field<Integer> integerField = new IntegerField("foo", 1);
 
-        Parser parser = DefaultParser.builder()
+        Parser parser = CachedParser.builder()
                 .withEncodedString(partOfEncodedString)
                 .withFields(integerField)
                 .build();
@@ -30,7 +30,7 @@ public class DefaultParserTest {
 
         String partOfEncodedString = String.format("%4s%20s", 23, "description");
 
-        Parser parser = DefaultParser.builder()
+        Parser parser = CachedParser.builder()
                 .withEncodedString(partOfEncodedString)
                 .withFields(integerField, stringField)
                 .build();
@@ -46,7 +46,7 @@ public class DefaultParserTest {
         String partOfEncodedString = String.format("%20s", "description");
         Field<String> stringField = new StringField("bar", 20);
 
-        Parser parser = DefaultParser.builder()
+        Parser parser = CachedParser.builder()
                 .withEncodedString(partOfEncodedString)
                 .withFields(stringField)
                 .build();
@@ -60,14 +60,14 @@ public class DefaultParserTest {
         String otherString = String.format("%20s", "other");
         Field<String> stringField = new StringField("bar", 20);
 
-        DefaultParser original = DefaultParser.builder()
+        CachedParser original = CachedParser.builder()
                 .withEncodedString(partOfEncodedString)
                 .withFields(stringField)
                 .build();
 
-        DefaultParser.DefaultParserBuilder builder = original.toBuilder();
+        CachedParser.CachedParserBuilder builder = original.toBuilder();
 
-        DefaultParser rebuild = builder.withEncodedString(otherString).build();
+        CachedParser rebuild = builder.withEncodedString(otherString).build();
 
         assertThat(rebuild.getValueFor(stringField).trim()).isEqualTo("other");
     }
@@ -80,7 +80,7 @@ public class DefaultParserTest {
         String part1 = String.format("%2s", "a");
         String part2 = String.format("%3s", "b");
 
-        Parser parser = DefaultParser.builder()
+        Parser parser = CachedParser.builder()
                 .withEncodedString(part1 + part2)
                 .withFields(stringField, stringField2)
                 .build();
@@ -97,7 +97,7 @@ public class DefaultParserTest {
         String part2 = String.format("%3s", "b");
         String encodedString = part1 + part2;
 
-        Parser parser = DefaultParser.builder()
+        Parser parser = CachedParser.builder()
                 .withEncodedString(encodedString)
                 .withFields(stringField, stringField2)
                 .build();
@@ -113,11 +113,25 @@ public class DefaultParserTest {
     public void parsingEncodedStringThatIsTooShortThrowsWithDebugString() {
         Field<String> stringField = new StringField("part1", 3);
 
-        DefaultParser.DefaultParserBuilder builder = DefaultParser.builder()
+        CachedParser.CachedParserBuilder builder = CachedParser.builder()
                 .withFields(stringField);
 
         assertThat(builder.withEncodedString("1234").build().getParseableCharacters()).isEqualTo(3);
         assertThatExceptionOfType(ParsingException.class).isThrownBy(() -> builder.withEncodedString("12").build());
+    }
+
+    @Test
+    public void setEncodedString_returnsNewParserWithNewStringParsed() {
+        Field<String> stringField = new StringField("part1", 3);
+
+        CachedParser.CachedParserBuilder builder = CachedParser.builder()
+                .withFields(stringField);
+
+        CachedParser parser = builder.withEncodedString("123").build();
+        CachedParser parser2 = parser.withEncodedString("321");
+
+        assertThat(parser.getValueFor(stringField)).isEqualTo("123");
+        assertThat(parser2.getValueFor(stringField)).isEqualTo("321");
     }
 
 }
